@@ -102,15 +102,15 @@ class MyprojectDownloaderMiddleware:
     def spider_opened(self, spider):
         spider.logger.info("Spider opened: %s" % spider.name)
 
-# # 代理池相关配置
-PROXY_POOL = []
+# 代理池相关配置
+# PROXY_POOL = []
 
-class ProxyMiddleware:
-    def __init__(self, stats):
-        self.stats = stats
+# class ProxyMiddleware:
+#     def __init__(self, stats):
+#         self.stats = stats
 
-    def process_request(self, request, spider):
-        import random
-        proxy = random.choice(PROXY_POOL)
-        request.meta['proxy'] = proxy
-        spider.logger.info(f'使用代理: {proxy}')
+#     def process_request(self, request, spider):
+#         import random
+#         proxy = random.choice(PROXY_POOL)
+#         request.meta['proxy'] = proxy
+#         spider.logger.info(f'使用代理: {proxy}')

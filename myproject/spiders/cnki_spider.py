@@ -6,13 +6,12 @@ class CnkiSpider(RedisSpider):
     # allowed_domains = ['www.cnki.net']
     redis_key = 'cnki_spider:start_urls'
 
-    # def __init__(self, name = None, **kwargs):
-    #     domin = kwargs.pop('domin','')
-    #     self.allowed_domains = list(filter(None,domin.split('.')))
-    #     super(CnkiSpider, self).__init__(name, **kwargs)
+    def __init__(self, name = None, **kwargs):
+        domin = kwargs.pop('domin','')
+        self.allowed_domains = list(filter(None,domin.split('.')))
+        super(CnkiSpider, self).__init__(name, **kwargs)
 
     def parse(self, response):
-        print(response.text)
     #     for article in response.css('.s-item'):
     #         yield {
     #             'title': article.css('.s-title::text').get(),
