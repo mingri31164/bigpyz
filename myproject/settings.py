@@ -34,7 +34,7 @@ DOWNLOAD_DELAY = 1
 #COOKIES_ENABLED = False
 
 # Disable Telnet Console (enabled by default)
-TELNETCONSOLE_ENABLED = False
+# TELNETCONSOLE_ENABLED = False
 
 # Override the default request headers:
 DEFAULT_REQUEST_HEADERS = {
@@ -45,19 +45,20 @@ DEFAULT_REQUEST_HEADERS = {
 
 # Enable or disable spider middlewares
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
-#SPIDER_MIDDLEWARES = {
-#    "myproject.middlewares.MyprojectSpiderMiddleware": 543,
-#}
+SPIDER_MIDDLEWARES = {
+   "myproject.middlewares.MyprojectSpiderMiddleware": 543,
+   'scrapy_splash.SplashDeduplicateArgsMiddleware': 100,
+}
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
-# DOWNLOADER_MIDDLEWARES = {
-#     "myproject.middlewares.MyprojectDownloaderMiddleware": 543,
-#     'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 1,
-#     'myproject.middlewares.ProxyMiddleware': 100,
-#     'scrapy_splash.SplashCookiesMiddleware': 723,
-#     'scrapy_splash.SplashMiddleware': 725,
-# }
+DOWNLOADER_MIDDLEWARES = {
+    "myproject.middlewares.MyprojectDownloaderMiddleware": 543,
+    'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 1,
+    # 'myproject.middlewares.ProxyMiddleware': 100,
+    'scrapy_splash.SplashCookiesMiddleware': 723,
+    'scrapy_splash.SplashMiddleware': 725,
+}
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
@@ -67,11 +68,10 @@ DEFAULT_REQUEST_HEADERS = {
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-#待修改
-# ITEM_PIPELINES = {
-#     "myproject.pipelines.MyprojectPipeline": 300,
-#     'scrapy_redis.pipelines.RedisPipeline': 300
-# }
+ITEM_PIPELINES = {
+    "myproject.pipelines.MyprojectPipeline": 300,
+    'scrapy_redis.pipelines.RedisPipeline': 300
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
