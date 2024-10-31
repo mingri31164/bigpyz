@@ -97,7 +97,7 @@ REQUEST_FINGERPRINTER_IMPLEMENTATION = "2.7"
 TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 FEED_EXPORT_ENCODING = "utf-8"
 
-#连接redis
+# 连接redis
 REDIS_URL = 'redis://:mingri1234@113.45.148.34:6379/3'
 
 # 使用 Scrapy-Redis 的调度器
@@ -105,8 +105,10 @@ SCHEDULER = "scrapy_redis.scheduler.Scheduler"
 SCHEDULER_PERSIST = True
 
 # 使用 Scrapy-Redis 去重
-DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
+# DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
 
+# 连接 splash 浏览器
 SPLASH_URL = 'http://172.24.32.1:8050'
 
-DUPEFILTER_CLASS = 'scrapy_splash.SplashAwareDupeFilter'
+# 使用 splash 进行 去重
+# DUPEFILTER_CLASS = 'scrapy_splash.SplashAwareDupeFilter'
