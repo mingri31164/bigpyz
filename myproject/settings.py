@@ -25,7 +25,7 @@ CONCURRENT_REQUESTS = 16
 # Configure a delay for requests for the same website (default: 0)
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-DOWNLOAD_DELAY = 2
+DOWNLOAD_DELAY = 1
 # The download delay setting will honor only one of:
 # CONCURRENT_REQUESTS_PER_DOMAIN = 16
 # CONCURRENT_REQUESTS_PER_IP = 16
@@ -34,13 +34,13 @@ DOWNLOAD_DELAY = 2
 #COOKIES_ENABLED = False
 
 # Disable Telnet Console (enabled by default)
-#TELNETCONSOLE_ENABLED = False
+TELNETCONSOLE_ENABLED = False
 
 # Override the default request headers:
 DEFAULT_REQUEST_HEADERS = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0",
 }
 
 # Enable or disable spider middlewares
@@ -55,6 +55,8 @@ DEFAULT_REQUEST_HEADERS = {
 #     "myproject.middlewares.MyprojectDownloaderMiddleware": 543,
 #     'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 1,
 #     'myproject.middlewares.ProxyMiddleware': 100,
+#     'scrapy_splash.SplashCookiesMiddleware': 723,
+#     'scrapy_splash.SplashMiddleware': 725,
 # }
 
 # Enable or disable extensions
@@ -106,3 +108,7 @@ SCHEDULER_PERSIST = True
 
 # 使用 Scrapy-Redis 去重
 DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
+
+SPLASH_URL = 'http://localhost:8050'
+
+DUPEFILTER_CLASS = 'scrapy_splash.SplashAwareDupeFilter'
