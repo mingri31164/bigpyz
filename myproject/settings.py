@@ -13,7 +13,6 @@ BOT_NAME = "myproject"
 SPIDER_MODULES = ["myproject.spiders"]
 NEWSPIDER_MODULE = "myproject.spiders"
 
-
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = "myproject (+http://www.yourdomain.com)"
 
@@ -26,7 +25,7 @@ CONCURRENT_REQUESTS = 16
 # Configure a delay for requests for the same website (default: 0)
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-DOWNLOAD_DELAY = 2
+DOWNLOAD_DELAY = 1
 # The download delay setting will honor only one of:
 # CONCURRENT_REQUESTS_PER_DOMAIN = 16
 # CONCURRENT_REQUESTS_PER_IP = 16
@@ -54,7 +53,7 @@ SPIDER_MIDDLEWARES = {
 DOWNLOADER_MIDDLEWARES = {
     "myproject.middlewares.MyprojectDownloaderMiddleware": 543,
     'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 1,
-    'scrapy_selenium.SeleniumMiddleware': 800
+    # 'scrapy_selenium.SeleniumMiddleware': 800
     # 'myproject.middlewares.ProxyMiddleware': 100,
     # 'scrapy_splash.SplashCookiesMiddleware': 723,
     # 'scrapy_splash.SplashMiddleware': 725,
@@ -104,14 +103,16 @@ REDIS_URL = 'redis://:mingri1234@113.45.148.34:6379/3'
 
 # 使用 Scrapy-Redis 的调度器
 SCHEDULER = "scrapy_redis.scheduler.Scheduler"
+
+# 使用队列持久化
 SCHEDULER_PERSIST = True
 
 # 使用 Scrapy-Redis 去重
 DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
 
 # 使用 chrome
-SELENIUM_DRIVER_NAME = 'chrome'  
-SELENIUM_DRIVER_EXECUTABLE_PATH = which('chromedriver') 
+# SELENIUM_DRIVER_NAME = 'chrome'  
+# SELENIUM_DRIVER_EXECUTABLE_PATH = which('chromedriver') 
 
 # 连接 splash 浏览器
 # SPLASH_URL = 'http://localhost:8050'
