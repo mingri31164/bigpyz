@@ -2,10 +2,12 @@ from scrapy_redis.spiders import RedisSpider
 import json
 import redis
 import urllib.parse
+from myproject.items import TemperatureItem,HumidityItem,PrecipitationItem,WindVelocityItem
 
 class WeatherSpider(RedisSpider):  
     name = 'weather_spider'  
-    redis_key = 'weather_spider:start_url'  
+    redis_key = 'weather_spider:start_url'
+
 
     def start_requests(self):
         self.redis_conn = self._get_redis_connection()
@@ -36,7 +38,7 @@ class WeatherSpider(RedisSpider):
                 query_params['startDate'] = [startDate]
                 query_params['endDate'] = [endDate]
                 updated_query = urllib.parse.urlencode(query_params, doseq=True)
-                # 确保所有参数都是字符串类型
+                
                 scheme = str(url_parts.scheme)
                 netloc = str(url_parts.netloc)
                 path = str(url_parts.path)
@@ -54,11 +56,48 @@ class WeatherSpider(RedisSpider):
         trend_chart_data = json_response['value'][0]['responses'][0]['trendChart']
 
         for date, trends in trend_chart_data.items():
-            print(f"Date: {date}")
-            for day, value in trends['trendDays'].items():
-                print(f"  Day: {day}, Value: {value}")
-            print()
-    
-    
-        
-        # url = 'https://assets.msn.cn/service/weather/weathertrends?apiKey=j5i4gDqHL6nGYwx5wi5kRhXjtf2c5qgFX9fzfk0TOo&cm=zh-cn&locale=zh-cn&lon=110.18000030517578&lat=25.235000610351562&units=C&user=m-2BE64755C83A64071FC6546FC9406530&ocid=msftweather&includeWeatherTrends=true&includeCalendar=false&fdhead=&weatherTrendsScenarios=TemperatureTrend,OverviewSummary,Summary,ClimateSummary,PrecipitationTrend,HumidityTrend,WindTrend&days=30&insights=1&startDate=20230101&endDate=20231231'
+            temperature_item = None
+            precipitation_item = None
+            humidity_item = None
+            windVelocity_item = None
+            
+            for key, value in trends.get('trendDays', {}).items():
+                if key == '1':
+                    temperature_item = TemperatureItem()
+                    temperature_item['date'] = date
+                    temperature_item['height_temperature'] = value
+                elif key == '3' and temperature_item:
+                    temperature_item['height_history_temperature'] = value
+                elif key == '6' and temperature_item:
+                    temperature_item['low_temperature'] = value
+                elif key == '8' and temperature_item:
+                    temperature_item['low_history_temperature'] = value
+                elif key == '11':
+                    precipitation_item = PrecipitationItem()
+                    precipitation_item['date'] = date
+                    precipitation_item['precipitation'] = value
+                elif key == '41':
+                    windVelocity_item = WindVelocityItem()
+                    windVelocity_item['date'] = date
+                    windVelocity_item['wind_velocity'] = value
+                elif key =='43' and windVelocity_item:
+                    windVelocity_item['wind_velocity_history'] = value
+                elif key == '58':
+                    humidity_item = HumidityItem()
+                    humidity_item['date'] = date
+                    humidity_item['humidity'] = value
+                elif key == '60' and humidity_item:
+                    humidity_item['humidity_history'] = value
+                
+            if temperature_item:
+                print(f"保存温度相关数据: {date}")
+                yield temperature_item
+            if precipitation_item:
+                print(f"保存降水量相关数据: {date}")
+                yield precipitation_item
+            if humidity_item:
+                print(f"保存湿度相关数据: {date}")
+                yield humidity_item
+            if windVelocity_item:
+                print(f"保存风速相关数据: {date}")
+                yield windVelocity_item
