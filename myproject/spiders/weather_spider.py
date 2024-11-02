@@ -8,6 +8,8 @@ class WeatherSpider(RedisSpider):
     redis_key = 'weather_spider:start_url'  
 
     def start_requests(self):
+        self.redis_conn = self._get_redis_connection()
+        self.start_urls = self.redis_conn.lrange(self.redis_key, 0, -1)
         base_url = self.start_urls[0]
         self.buildUrls(base_url)
         return super().start_requests()
@@ -18,11 +20,11 @@ class WeatherSpider(RedisSpider):
     def redis_push(self, url):
         self.redis_conn.lpush(self.redis_key, url)
 
-    @property
     def redis_conn(self):
         return self._get_redis_connection()
     
     def buildUrls(self, base_url):
+        base_url = base_url.decode('utf-8')
         startDates = [20200101, 20210101, 20220101, 20230101, 20240101]
         endDates = [20201231, 20211231, 20221231, 20241231]
         weatherTrendsScenarios = ["TemperatureTrend,OverviewSummary,Summary,ClimateSummary", "PrecipitationTrend", "HumidityTrend", "WindTrend"]
@@ -34,14 +36,16 @@ class WeatherSpider(RedisSpider):
                 query_params['startDate'] = [startDate]
                 query_params['endDate'] = [endDate]
                 updated_query = urllib.parse.urlencode(query_params, doseq=True)
-                url = urllib.parse.urlunparse((
-                            url_parts.scheme,
-                            url_parts.netloc,
-                            url_parts.path,
-                            url_parts.params,
-                            updated_query,
-                            url_parts.fragment
-                        ))
+                # 确保所有参数都是字符串类型
+                scheme = str(url_parts.scheme)
+                netloc = str(url_parts.netloc)
+                path = str(url_parts.path)
+                params = str(url_parts.params)
+                query = str(updated_query)
+                fragment = str(url_parts.fragment)
+                
+                url = urllib.parse.urlunparse((scheme, netloc, path, params, query, fragment))
+                print(url)
                 self.redis_push(url)
 
     def parse(self, response, **kwargs):
