@@ -7,6 +7,7 @@
 # useful for handling different item types with a single interface
 import csv
 
+# 保存数据的类
 class MyprojectPipeline:
     def __init__(self):
         self.temp_fields = ['date', 'height_temperature', 'low_temperature', 'height_history_temperature', 'low_history_temperature']

@@ -5,6 +5,7 @@
 
 import scrapy
 
+# 设置要保存数据项
 class TemperatureItem(scrapy.Item):
     # 温度相关的字段
     date = scrapy.Field()

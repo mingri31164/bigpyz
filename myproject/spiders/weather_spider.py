@@ -5,10 +5,10 @@ import urllib.parse
 from myproject.items import TemperatureItem,HumidityItem,PrecipitationItem,WindVelocityItem
 
 class WeatherSpider(RedisSpider):  
-    name = 'weather_spider'  
-    redis_key = 'weather_spider:start_url'
+    name = 'weather_spider'  # 爬虫开始的名称
+    redis_key = 'weather_spider:start_url' # redis服务上管理url的键
 
-
+    # 开始请求前，先进行将要爬取的多个url给封装好，并push到redis上
     def start_requests(self):
         self.redis_conn = self._get_redis_connection()
         self.start_urls = self.redis_conn.lrange(self.redis_key, 0, -1)
@@ -16,15 +16,19 @@ class WeatherSpider(RedisSpider):
         self.buildUrls(base_url)
         return super().start_requests()
 
+    # 连接留得爆的远程redis服务
     def _get_redis_connection(self):
         return redis.Redis(host='113.45.148.34', password= "mingri1234", port=6379, db=3)
     
+    # 将url给push到redis服务上
     def redis_push(self, url):
         self.redis_conn.lpush(self.redis_key, url)
 
+    # 返回redis连接实例
     def redis_conn(self):
         return self._get_redis_connection()
     
+    # 构建要爬取的url
     def buildUrls(self, base_url):
         base_url = base_url.decode('utf-8')
         startDates = [20200101, 20210101, 20220101, 20230101, 20240101]
@@ -50,6 +54,7 @@ class WeatherSpider(RedisSpider):
                 print(url)
                 self.redis_push(url)
 
+    # 解析返回的网络请求数据
     def parse(self, response, **kwargs):
         json_response = json.loads(response.body)
         
@@ -88,7 +93,8 @@ class WeatherSpider(RedisSpider):
                     humidity_item['humidity'] = value
                 elif key == '60' and humidity_item:
                     humidity_item['humidity_history'] = value
-                
+
+            # 根据具体item实例情况，合理的将数据发送到管道上    
             if temperature_item:
                 print(f"保存温度相关数据: {date}")
                 yield temperature_item
