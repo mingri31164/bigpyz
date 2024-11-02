@@ -1,28 +1,63 @@
 from scrapy_redis.spiders import RedisSpider  
-from scrapy_splash import SplashRequest
+from scrapy_selenium import SeleniumRequest  
+from selenium.webdriver.common.by import By  
+from selenium.webdriver.support.ui import WebDriverWait  
+from selenium.webdriver.support import expected_conditions as EC  
 
-class CnkiSpider(RedisSpider):
-    name = 'weather_spider'
-    redis_key = 'weather_spider:start_url'
+class CnkiSpider(RedisSpider):  
+    name = 'weather_spider'  
+    redis_key = 'weather_spider:start_url'  
+    max_pages = 64
 
-    def __init__(self, *args, **kwargs):
-        super(CnkiSpider, self).__init__(args, **kwargs)
-    
     def start_requests(self):
-        for url in self.start_urls:
-            yield SplashRequest(url, callback=self.parse, endpoint='render.json', args={'wait': 0.5})
+        return super().start_requests()
 
-    def parse(self, response):
+    def parse(self, response, **kwargs):
+        data = []  
         tr_elements = response.css('tr')
-        print(tr_elements)
+        
+        for tr in tr_elements:  
+            ths = tr.css("th::text").getall()  
+            tds = tr.css("td::text").getall()  
+            if ths:  
+                row_data = {"headers": ths}  
+            else:  
+                row_data = {"data": tds}  
+            
+            data.append(row_data) 
 
-        # 或者使用 XPath 选择器  
-        # tr_elements = response.xpath('//tr')  
+        yield SeleniumRequest(  
+            url=response.url,
+            callback=self.parse_previous_month,
+            wait_time=3,
+            wait_until=lambda driver: driver.find_element(By.CSS_SELECTOR, '#js_prevMonth')
+        )  
+
+    def parse_previous_month(self, response, driver):  
+        print("该函数被执行！！")
+
+        prev_month_button = WebDriverWait(driver, 10).until(  
+            EC.element_to_be_clickable((By.CSS_SELECTOR, '#js_prevMonth'))  
+        )  
+
+        prev_month_button.click()
+
+        WebDriverWait(driver, 10).until(  
+            EC.presence_of_element_located((By.CSS_SELECTOR, 'tr')) 
+        )  
+
+        data1 = []  
+        tr_elements = driver.find_elements(By.TAG_NAME, 'tr')  
 
         for tr in tr_elements:  
-            tr_content = tr.css('::text').getall()  
-            tr_cleaned_content = [text.strip() for text in tr_content if text.strip()]
-            if tr_cleaned_content: 
-                print(tr_cleaned_content)
-            else:
-                print("爬取的数据为空!")
+            ths = tr.find_elements(By.TAG_NAME, 'th') 
+            tds = tr.find_elements(By.TAG_NAME, 'td')  
+
+            row_data = {  
+                "headers": [th.text for th in ths],  
+                "data": [td.text for td in tds]  
+            }  
+
+            data1.append(row_data)  
+
+        print(data1)

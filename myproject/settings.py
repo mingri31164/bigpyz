@@ -1,3 +1,4 @@
+from shutil import which  
 # Scrapy settings for myproject project
 #
 # For simplicity, this file contains only settings considered important or
@@ -45,7 +46,7 @@ DEFAULT_REQUEST_HEADERS = {
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 SPIDER_MIDDLEWARES = {
    "myproject.middlewares.MyprojectSpiderMiddleware": 543,
-   'scrapy_splash.SplashDeduplicateArgsMiddleware': 100,
+#    'scrapy_splash.SplashDeduplicateArgsMiddleware': 100,
 }
 
 # Enable or disable downloader middlewares
@@ -53,9 +54,10 @@ SPIDER_MIDDLEWARES = {
 DOWNLOADER_MIDDLEWARES = {
     "myproject.middlewares.MyprojectDownloaderMiddleware": 543,
     'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 1,
+    'scrapy_selenium.SeleniumMiddleware': 800
     # 'myproject.middlewares.ProxyMiddleware': 100,
-    'scrapy_splash.SplashCookiesMiddleware': 723,
-    'scrapy_splash.SplashMiddleware': 725,
+    # 'scrapy_splash.SplashCookiesMiddleware': 723,
+    # 'scrapy_splash.SplashMiddleware': 725,
 }
 
 # Enable or disable extensions
@@ -66,10 +68,10 @@ DOWNLOADER_MIDDLEWARES = {
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-ITEM_PIPELINES = {
-    "myproject.pipelines.MyprojectPipeline": 300,
-    'scrapy_redis.pipelines.RedisPipeline': 300
-}
+# ITEM_PIPELINES = {
+#     "myproject.pipelines.MyprojectPipeline": 300,
+#     'scrapy_redis.pipelines.RedisPipeline': 300
+# }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
@@ -105,10 +107,17 @@ SCHEDULER = "scrapy_redis.scheduler.Scheduler"
 SCHEDULER_PERSIST = True
 
 # 使用 Scrapy-Redis 去重
-# DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
+DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
+
+# 使用 chrome
+SELENIUM_DRIVER_NAME = 'chrome'  
+SELENIUM_DRIVER_EXECUTABLE_PATH = which('chromedriver') 
 
 # 连接 splash 浏览器
-SPLASH_URL = 'http://172.24.32.1:8050'
+# SPLASH_URL = 'http://localhost:8050'
+
+# 使用Splash的Http缓存
+# HTTPCACHE_STORAGE = 'scrapy_splash.SplashAwareFSCacheStorage'
 
 # 使用 splash 进行 去重
 # DUPEFILTER_CLASS = 'scrapy_splash.SplashAwareDupeFilter'
