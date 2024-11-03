@@ -31,8 +31,8 @@ class WeatherSpider(RedisSpider):
     # 构建要爬取的url
     def buildUrls(self, base_url):
         base_url = base_url.decode('utf-8')
-        startDates = [20200101, 20210101, 20220101, 20230101, 20240101]
-        endDates = [20201231, 20211231, 20221231, 20241231]
+        startDates = [20240101, 20230101, 20220101, 20210101, 20200101]
+        endDates = [20241231, 20231231, 20221231, 20211231, 20201231]
         weatherTrendsScenarios = ["TemperatureTrend,OverviewSummary,Summary,ClimateSummary", "PrecipitationTrend", "HumidityTrend", "WindTrend"]
         for startDate, endDate in zip(startDates, endDates):
             for weatherSpecial in weatherTrendsScenarios:
