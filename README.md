@@ -1,10 +1,10 @@
 本项目基本部署流程：
 
-1.![image-20241103190841604](C:\Users\Administrator\Desktop\bigpyz\image-20241103190841604.png)
+1.![image-20241103190841604](https://github.com/user-attachments/assets/2e021032-4152-4c06-b4bd-c4b3b28ad7bd)
 
-2.![image-20241103190940443](C:\Users\Administrator\Desktop\bigpyz\image-20241103190940443.png)
+2.![image-20241103190940443](https://github.com/user-attachments/assets/53b4a586-fff8-465d-8d1a-425d4221e5cc)
 
-3.![image-20241103191113696](C:\Users\Administrator\Desktop\bigpyz\image-20241103191113696.png)
+3.![image-20241103191113696](https://github.com/user-attachments/assets/1baa6214-fc1d-4260-9045-98b393338e3c)
 
 
 
@@ -14,7 +14,7 @@
 
 step 0: 打开项目文件夹
 
-![image-20241103191204379](C:\Users\Administrator\Desktop\bigpyz\image-20241103191204379.png)
+![image-20241103191204379](https://github.com/user-attachments/assets/ad3d96f2-11e7-4e60-be1c-7615997b248a)
 
 step 1: 
 
@@ -22,7 +22,7 @@ step 1:
 
 step 2: 
 
-​	在命令行下填入项目文件夹目录，例如 C:\\Users\\Administrator\\Desktop\\bigpyz
+​	运行爬虫(跳过，输入n，若输入y，会卡死在爬虫程序，无法退出，待修正)
 
 step 3: 
 
