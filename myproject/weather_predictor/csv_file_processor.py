@@ -5,6 +5,7 @@ from datetime import datetime
 class processor:
     def __init__(self, file_path):
         self.file_relative_path = file_path
+        print(self.file_relative_path)
         self.csv_prefix = ["temperature", "humidity", "precipitation", "wind_velocity"]
         self.csv_suffix = "_predicted"
         self.csv_processed = "all_in_one_processed"
@@ -75,8 +76,11 @@ class processor:
     def predicted_csv(self):
         if not self.file_relative_path == "" and os.path.exists(os.path.join(self.file_relative_path, f"result\\{self.csv_processed}.csv")):
             processed_file = os.path.join(self.file_relative_path, f"result\\{self.csv_processed}.csv")
+            print(processed_file)
             predicted_file = os.path.join(self.file_relative_path, f"result\\all{self.csv_suffix}.csv")
+            print(predicted_file)
             output_file = os.path.join(self.file_relative_path, f"result\\{self.csv_predicted}.csv")
+            print(output_file)
 
             # 读取原始数据，使用日期作为键创建字典
             original_data = {}
