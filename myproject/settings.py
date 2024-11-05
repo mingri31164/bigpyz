@@ -110,6 +110,8 @@ SCHEDULER_PERSIST = True
 # 使用 Scrapy-Redis 去重
 DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
 
+CLOSESPIDER_TIMEOUT = 60
+
 # 使用 chrome
 # SELENIUM_DRIVER_NAME = 'chrome'  
 # SELENIUM_DRIVER_EXECUTABLE_PATH = which('chromedriver') 
