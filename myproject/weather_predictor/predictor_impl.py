@@ -123,7 +123,7 @@ class predictor_impl(weather_predictor): # 定义predicoctor_impl类，继承自
 
 # # 使用示例
 if __name__ == "__main__":
-    predictor = predictor_impl("result\\all_in_one_processed.csv",20)  # 使用新的CSV文件路径
+    predictor = predictor_impl("result\\all_in_one_processed.csv",20)
     
     predictor.set_base_date("2024-11-05")
     predictor.create_predictor_from_csv()

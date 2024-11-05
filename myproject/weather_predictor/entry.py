@@ -1,6 +1,6 @@
 from datetime import datetime
 import os
-from weather_predictor import predictor_impl
+from weather_predictor.predictor_impl import predictor_impl
 from weather_predictor.csv_file_processor import processor
 
 def get_user_input(prompt, valid_responses=None):
@@ -108,13 +108,13 @@ def start_all(start_scrapy):    # 终极方法, 一切的开始
 
         # 数据处理流程
         if get_user_input("是否启动数据处理? (y/n): ", ['y', 'n']) == 'y':
-            # try:
-            proc = processor(file_path)
-            proc.processed_csv()
-            print("数据处理完成")
-            # except Exception as e:
-            #     print(f"数据处理出错: {str(e)}")
-            #     return
+            try:
+                proc = processor(file_path)
+                proc.processed_csv()
+                print("数据处理完成")
+            except Exception as e:
+                print(f"数据处理出错: {str(e)}")
+                return
 
             # 预测流程
             if get_user_input("是否启动天气预测? (y/n): ", ['y', 'n']) == 'y':
