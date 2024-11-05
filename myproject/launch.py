@@ -10,30 +10,15 @@ from weather_predictor.entry import start_all
 redis_url_cmd = 'D:\\Redis\\redis-cli.exe -h 113.45.148.34 -a "mingri1234" -p 6379 -n 3 lpush weather_spider:start_url "https://assets.msn.cn/service/weather/weathertrends?apiKey=j5i4gDqHL6nGYwx5wi5kRhXjtf2c5qgFX9fzfk0TOo&cm=zh-cn&locale=zh-cn&lon=110.18000030517578&lat=25.235000610351562&units=C&user=m-2BE64755C83A64071FC6546FC9406530&ocid=msftweather&includeWeatherTrends=true&includeCalendar=false&fdhead=&weatherTrendsScenarios=WindTrend&days=30&insights=1&startDate=20200101&endDate=20201231""'
 launch_scrapy_cmd = 'scrapy crawl weather_spider'
 
-def send_ctrl_c_twice(process):
-    """发送两次 Ctrl+C 信号到进程"""
-    try:
-        if platform.system() == 'Windows':
-            # Windows系统
-            process.send_signal(signal.CTRL_C_EVENT)
-            time.sleep(0.1)  # 等待0.1秒
-            process.send_signal(signal.CTRL_C_EVENT)
-        else:
-            # Unix系统
-            os.killpg(os.getpgid(process.pid), signal.SIGINT)
-            time.sleep(0.1)
-            os.killpg(os.getpgid(process.pid), signal.SIGINT)
-    except Exception as e:
-        print(f"发送Ctrl+C信号时出错: {e}")
-
-def monitor_user_input(process):
-    """监控用户输入"""
-    while True:
-        user_input = input().strip().lower()
-        if user_input == 'exit':
-            print("收到退出命令，正在发送两次Ctrl+C...")
-            send_ctrl_c_twice(process)
-            break
+# 强行终止可能会导致数据缺失，因为爬取完之后，还有一段时间是scrapy整理数据，这个时候终止会出导致部分数据缺失
+def monitor_user_input(process):  
+    """监控用户输入"""  
+    while True:  
+        user_input = input().strip().lower()  
+        if user_input == 'exit':  
+            print("收到退出命令，正在发送退出信号...")  
+            process.terminate()  # 发送终止信号  
+            break  
 
 def launch_scrapy():
     """执行Scrapy命令"""
