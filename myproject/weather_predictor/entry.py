@@ -25,16 +25,15 @@ def get_user_input(prompt, valid_responses=None):
         print(f"无效输入，请输入: {'/'.join(valid_responses)}")
 
 
-def get_file_path():
+def get_root_path():
     """自动获取项目根目录"""
     current_file = os.path.abspath(__file__)
     path_parts = current_file.split(os.sep)
-    
+   
     try:
-        # 注意这里改成小写的 'bigpyz'
         bigpyz_index = path_parts.index('myproject')
         root_dir = os.sep.join(path_parts[:bigpyz_index + 1])
-        return root_dir
+        return os.path.dirname(root_dir)  # 使用dirname获取上一级目录
     except ValueError:
         return os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(current_file))))
 
@@ -72,16 +71,16 @@ def run_prediction(file_path):
 
 def start_all(start_scrapy):    # 终极方法, 一切的开始
     try:
-        # 获取文件路径
-        file_path = get_file_path()
-        if not os.path.exists(file_path):
-            print(f"错误：路径 {file_path} 不存在")
+        # 获取项目根路径
+        root_path = get_root_path()
+        if not os.path.exists(root_path):
+            print(f"错误：路径 {root_path} 不存在")
             return
         
-        print(file_path)
+        # print(file_path)
 
-        temperature_file = os.path.join(file_path, "result\\temperature.csv")
-        print(temperature_file)
+        temperature_file = os.path.join(root_path, "result\\temperature.csv")
+        # print(temperature_file)
         data_exists = os.path.exists(temperature_file)
 
         # 确定是否需要爬取数据
@@ -109,7 +108,7 @@ def start_all(start_scrapy):    # 终极方法, 一切的开始
         # 数据处理流程
         if get_user_input("是否启动数据处理? (y/n): ", ['y', 'n']) == 'y':
             try:
-                proc = processor(file_path)
+                proc = processor(root_path)
                 proc.processed_csv()
                 print("数据处理完成")
             except Exception as e:
@@ -118,16 +117,16 @@ def start_all(start_scrapy):    # 终极方法, 一切的开始
 
             # 预测流程
             if get_user_input("是否启动天气预测? (y/n): ", ['y', 'n']) == 'y':
-                if run_prediction(file_path):
+                if run_prediction(root_path):
                     print("全部流程执行完成")
                 else:
                     print("预测流程执行失败")
             else:
                 print("天气数据已保存到all_in_one_processed.csv, 但未进行预测")
         else:
-            if os.path.join(file_path, "all_in_one_processed.csv"):
+            if os.path.join(root_path, "all_in_one_processed.csv"):
                 if get_user_input("处理后的数据已存在, 是否进行预测? (y/n): ", ['y', 'n']) == 'y':
-                    if run_prediction(file_path):
+                    if run_prediction(root_path):
                         print("全部流程执行完成")
                     else:
                         print("预测流程执行失败")
