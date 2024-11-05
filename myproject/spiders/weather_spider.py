@@ -11,8 +11,7 @@ class WeatherSpider(RedisSpider):
     # 开始请求前，先进行将要爬取的多个url给封装好，并push到redis上
     def start_requests(self):
         self.redis_conn = self._get_redis_connection()
-        self.start_urls = self.redis_conn.lrange(self.redis_key, 0, -1)
-        base_url = self.start_urls[0]
+        base_url = self.redis_conn.lpop(self.redis_key)
         self.buildUrls(base_url)
         return super().start_requests()
 

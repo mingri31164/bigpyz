@@ -12,7 +12,7 @@ class processor:
     
     def processed_csv(self):
         if not self.file_relative_path == "":
-            if os.path.exists(os.path.join(self.file_relative_path, f"{self.csv_prefix[0]}.csv")):
+            if os.path.exists(os.path.join(self.file_relative_path, f"result\\{self.csv_prefix[0]}.csv")):
                 
                 # 用于存储所有文件的数据
                 all_files_data = []
@@ -20,7 +20,7 @@ class processor:
 
                 # 读取所有文件的内容
                 for prefix in self.csv_prefix:
-                    file_path = os.path.join(self.file_relative_path, f"{prefix}.csv")
+                    file_path = os.path.join(self.file_relative_path, f"result\\{prefix}.csv")
                     with open(file_path, 'r') as csvfile:
                         reader = csv.reader(csvfile)
                         # 读取表头
@@ -57,7 +57,7 @@ class processor:
                 merged_data.sort(key=lambda x: datetime.strptime(x[0], '%Y-%m-%dT%H:%M:%S'), reverse=False)
 
                 # 写入合并后的CSV文件
-                output_path = os.path.join(self.file_relative_path, f"{self.csv_processed}.csv")
+                output_path = os.path.join(self.file_relative_path, f"result/{self.csv_processed}.csv")
                 with open(output_path, 'w', newline='') as csvfile:
                     writer = csv.writer(csvfile)
                     # 写入表头
@@ -73,10 +73,10 @@ class processor:
             
             
     def predicted_csv(self):
-        if not self.file_relative_path == "" and os.path.exists(os.path.join(self.file_relative_path, f"{self.csv_processed}.csv")):
-            processed_file = os.path.join(self.file_relative_path, f"{self.csv_processed}.csv")
-            predicted_file = os.path.join(self.file_relative_path, f"all{self.csv_suffix}.csv")
-            output_file = os.path.join(self.file_relative_path, f"{self.csv_predicted}.csv")
+        if not self.file_relative_path == "" and os.path.exists(os.path.join(self.file_relative_path, f"result\\{self.csv_processed}.csv")):
+            processed_file = os.path.join(self.file_relative_path, f"result\\{self.csv_processed}.csv")
+            predicted_file = os.path.join(self.file_relative_path, f"result\\all{self.csv_suffix}.csv")
+            output_file = os.path.join(self.file_relative_path, f"result\\{self.csv_predicted}.csv")
 
             # 读取原始数据，使用日期作为键创建字典
             original_data = {}
@@ -137,9 +137,9 @@ class processor:
                     writer.writerow(row)
             print(f"所有数据(包含预测)已保存到: {output_file}")
                     
-# 使用示例
-if __name__ == "__main__":
-    file_path = "C:\\Users\\Administrator\\Desktop\\bigpyz"
-    proc = processor(file_path)
-    proc.processed_csv()  # 首先处理原始数据
-    proc.predicted_csv()  # 然后添加预测数据
+# # 使用示例
+# if __name__ == "__main__":
+#     file_path = "C:\\Users\\Administrator\\Desktop\\bigpyz"
+#     proc = processor(file_path)
+#     proc.processed_csv()  # 首先处理原始数据
+#     proc.predicted_csv()  # 然后添加预测数据

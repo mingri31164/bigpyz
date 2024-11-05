@@ -1,8 +1,8 @@
-from weather_predictor.predictor_interface import weather_predictor  # 导入weather_predictor接口
 import pandas as pd  # 导入pandas库
 import numpy as np  # 导入numpy库
 from statsmodels.tsa.statespace.sarimax import SARIMAX  # 导入SARIMAX模型
-from datetime import datetime, timedelta  # 导入datetime和timedelta类
+from datetime import datetime, timedelta # 导入datetime和timedelta类
+from weather_predictor.predictor_interface import weather_predictor 
 
 class predictor_impl(weather_predictor): # 定义predicoctor_impl类，继承自weather_predictor接口
     
@@ -122,14 +122,14 @@ class predictor_impl(weather_predictor): # 定义predicoctor_impl类，继承自
 
 
 # # 使用示例
-# if __name__ == "__main__":
-#     predictor = predicoctor_impl("all_in_one_processed.csv",20)  # 使用新的CSV文件路径
+if __name__ == "__main__":
+    predictor = predictor_impl("result\\all_in_one_processed.csv",20)  # 使用新的CSV文件路径
     
-#     predictor.set_base_date("2024-07-15")
-#     predictor.create_predictor_from_csv()
+    predictor.set_base_date("2024-11-05")
+    predictor.create_predictor_from_csv()
     
-#     predicted_data = predictor.predict()
-#     predictor.predicton_data_saver()
+    predicted_data = predictor.predict()
+    predictor.predicton_data_saver()
     
-#     print("预测结果预览：")
-#     print(predicted_data)
+    print("预测结果预览：")
+    print(predicted_data)

@@ -7,7 +7,7 @@ import os
 
 from weather_predictor.entry import start_all
 
-redis_url_cmd = 'redis-cli.exe -h 113.45.148.34 -a "mingri1234" -p 6379 -n 3 lpush weather_spider:start_url "https://assets.msn.cn/service/weather/weathertrends?apiKey=j5i4gDqHL6nGYwx5wi5kRhXjtf2c5qgFX9fzfk0TOo&cm=zh-cn&locale=zh-cn&lon=110.18000030517578&lat=25.235000610351562&units=C&user=m-2BE64755C83A64071FC6546FC9406530&ocid=msftweather&includeWeatherTrends=true&includeCalendar=false&fdhead=&weatherTrendsScenarios=WindTrend&days=30&insights=1&startDate=20200101&endDate=20201231""'
+redis_url_cmd = 'D:\\Redis\\redis-cli.exe -h 113.45.148.34 -a "mingri1234" -p 6379 -n 3 lpush weather_spider:start_url "https://assets.msn.cn/service/weather/weathertrends?apiKey=j5i4gDqHL6nGYwx5wi5kRhXjtf2c5qgFX9fzfk0TOo&cm=zh-cn&locale=zh-cn&lon=110.18000030517578&lat=25.235000610351562&units=C&user=m-2BE64755C83A64071FC6546FC9406530&ocid=msftweather&includeWeatherTrends=true&includeCalendar=false&fdhead=&weatherTrendsScenarios=WindTrend&days=30&insights=1&startDate=20200101&endDate=20201231""'
 launch_scrapy_cmd = 'scrapy crawl weather_spider'
 
 def send_ctrl_c_twice(process):
@@ -16,12 +16,12 @@ def send_ctrl_c_twice(process):
         if platform.system() == 'Windows':
             # Windows系统
             process.send_signal(signal.CTRL_C_EVENT)
-            time.sleep(1)  # 等待1秒
+            time.sleep(0.1)  # 等待0.1秒
             process.send_signal(signal.CTRL_C_EVENT)
         else:
             # Unix系统
             os.killpg(os.getpgid(process.pid), signal.SIGINT)
-            time.sleep(1)
+            time.sleep(0.1)
             os.killpg(os.getpgid(process.pid), signal.SIGINT)
     except Exception as e:
         print(f"发送Ctrl+C信号时出错: {e}")
@@ -77,7 +77,7 @@ def main():
             print("Redis命令执行成功")
         else:
             print("错误:", result.stderr)
-            return  # 如果Redis命令出错，直接返回
+            # return  # 如果Redis命令出错，直接返回
 
         # 启动主程序
         start_all(launch_scrapy)

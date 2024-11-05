@@ -1,7 +1,7 @@
-import os
-from weather_predictor.csv_file_processor import processor
-from weather_predictor.predictor_impl import predictor_impl
 from datetime import datetime
+import os
+from weather_predictor import predictor_impl
+from weather_predictor.csv_file_processor import processor
 
 def get_user_input(prompt, valid_responses=None):
     """
@@ -32,7 +32,7 @@ def get_file_path():
     
     try:
         # 注意这里改成小写的 'bigpyz'
-        bigpyz_index = path_parts.index('bigpyz')
+        bigpyz_index = path_parts.index('myproject')
         root_dir = os.sep.join(path_parts[:bigpyz_index + 1])
         return root_dir
     except ValueError:
@@ -41,7 +41,6 @@ def get_file_path():
 def run_prediction(file_path):
     """运行预测流程"""
     try:
-       
         # 获取预测起始日期
         while True:
             date_str = input("请输入预测起始日期 (格式: YYYY-MM-DD): ").strip()
@@ -57,11 +56,7 @@ def run_prediction(file_path):
         proc = processor(file_path)
         
         # 创建预测器并运行预测
-        predictor = predictor_impl(os.path.join(file_path, "all_in_one_processed.csv"), period)
-              
-                
-                
-        
+        predictor = predictor_impl(os.path.join(file_path, "result\\all_in_one_processed.csv"), period)
         predictor.set_base_date(date_str)
         predictor.create_predictor_from_csv()
         predictor.predict()
@@ -82,8 +77,11 @@ def start_all(start_scrapy):    # 终极方法, 一切的开始
         if not os.path.exists(file_path):
             print(f"错误：路径 {file_path} 不存在")
             return
+        
+        print(file_path)
 
-        temperature_file = os.path.join(file_path, "temperature.csv")
+        temperature_file = os.path.join(file_path, "result\\temperature.csv")
+        print(temperature_file)
         data_exists = os.path.exists(temperature_file)
 
         # 确定是否需要爬取数据
@@ -110,13 +108,13 @@ def start_all(start_scrapy):    # 终极方法, 一切的开始
 
         # 数据处理流程
         if get_user_input("是否启动数据处理? (y/n): ", ['y', 'n']) == 'y':
-            try:
-                proc = processor(file_path)
-                proc.processed_csv()
-                print("数据处理完成")
-            except Exception as e:
-                print(f"数据处理出错: {str(e)}")
-                return
+            # try:
+            proc = processor(file_path)
+            proc.processed_csv()
+            print("数据处理完成")
+            # except Exception as e:
+            #     print(f"数据处理出错: {str(e)}")
+            #     return
 
             # 预测流程
             if get_user_input("是否启动天气预测? (y/n): ", ['y', 'n']) == 'y':
