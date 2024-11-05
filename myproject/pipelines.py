@@ -17,10 +17,10 @@ class MyprojectPipeline:
         
     def open_spider(self, spider):
         # 打开四个CSV文件
-        self.temp_file = open('temperature.csv', 'w', newline='', encoding='utf-8')
-        self.hum_file = open('humidity.csv', 'w', newline='', encoding='utf-8')
-        self.pre_file = open('precipitation.csv', 'w', newline='', encoding='utf-8')
-        self.wind_file = open('wind_velocity.csv', 'w', newline='', encoding='utf-8')
+        self.temp_file = open('result/temperature.csv', 'w', newline='', encoding='utf-8')
+        self.hum_file = open('result/humidity.csv', 'w', newline='', encoding='utf-8')
+        self.pre_file = open('result/precipitation.csv', 'w', newline='', encoding='utf-8')
+        self.wind_file = open('result/wind_velocity.csv', 'w', newline='', encoding='utf-8')
         
         # 创建csv.writer实例
         self.temp_writer = csv.writer(self.temp_file)
