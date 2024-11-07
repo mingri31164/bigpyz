@@ -33,7 +33,7 @@ def get_root_path():
     try:
         bigpyz_index = path_parts.index('myproject')
         root_dir = os.sep.join(path_parts[:bigpyz_index + 1])
-        return os.path.dirname(root_dir)  # 使用dirname获取上一级目录
+        return root_dir  # 使用dirname获取上一级目录
     except ValueError:
         return os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(current_file))))
 

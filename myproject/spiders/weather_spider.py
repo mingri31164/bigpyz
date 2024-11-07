@@ -10,7 +10,8 @@ class WeatherSpider(RedisSpider):
 
     # 开始请求前，先进行将要爬取的多个url给封装好，并push到redis上
     def start_requests(self):
-        base_url = self.redis_get()
+        self.redis_conn = self._get_redis_connection()
+        base_url = self.redis_conn.lpop(self.redis_key)
         self.buildUrls(base_url)
         return super().start_requests()
 
@@ -27,7 +28,6 @@ class WeatherSpider(RedisSpider):
         self.redis_conn.lpush(self.redis_key, url)
 
     # 返回redis连接实例
-    @property
     def redis_conn(self):
         return self._get_redis_connection()
     
