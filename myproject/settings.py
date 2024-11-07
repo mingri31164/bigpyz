@@ -20,12 +20,12 @@ NEWSPIDER_MODULE = "myproject.spiders"
 ROBOTSTXT_OBEY = True
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
-CONCURRENT_REQUESTS = 16
+CONCURRENT_REQUESTS = 24
 
 # Configure a delay for requests for the same website (default: 0)
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-DOWNLOAD_DELAY = 1
+DOWNLOAD_DELAY = 0.1
 # The download delay setting will honor only one of:
 # CONCURRENT_REQUESTS_PER_DOMAIN = 16
 # CONCURRENT_REQUESTS_PER_IP = 16
@@ -52,7 +52,7 @@ SPIDER_MIDDLEWARES = {
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
     "myproject.middlewares.MyprojectDownloaderMiddleware": 543,
-    'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 1,
+    'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 80,
     # 'scrapy_selenium.SeleniumMiddleware': 800
     # 'myproject.middlewares.ProxyMiddleware': 100,
     # 'scrapy_splash.SplashCookiesMiddleware': 723,
@@ -110,6 +110,7 @@ SCHEDULER_PERSIST = True
 # 使用 Scrapy-Redis 去重
 DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
 
+# 设置爬虫结束时间
 CLOSESPIDER_TIMEOUT = 60
 
 # 使用 chrome
