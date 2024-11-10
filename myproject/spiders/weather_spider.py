@@ -2,111 +2,110 @@ import urllib.parse
 from scrapy_redis.spiders import RedisSpider
 import json
 import redis
-from myproject.items import TemperatureItem,HumidityItem,PrecipitationItem,WindVelocityItem
+from myproject.items import TemperatureItem, HumidityItem, PrecipitationItem, WindVelocityItem
 
-class WeatherSpider(RedisSpider):  
-    name = 'weather_spider'  # 爬虫开始的名称
-    redis_key = 'weather_spider:start_url' # redis服务上管理url的键
 
-    # 开始请求前，先进行将要爬取的多个url给封装好，并push到redis上
+class WeatherSpider(RedisSpider):
+    name = 'weather_spider'  # 爬虫名称
+    redis_key = 'weather_spider:start_url'  # redis服务上管理url的键
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._redis_conn = redis.Redis(host='113.45.148.34', password="mingri1234", port=6379, db=3)
+
+    # 开始请求前，将要爬取的多个url封装好并批量push到redis上
     def start_requests(self):
         base_url = self.redis_get()
-        self.buildUrls(base_url)
+        self.build_urls(base_url)
         return super().start_requests()
 
-    # 连接留得爆的远程redis服务
-    def _get_redis_connection(self):
-        return redis.Redis(host='113.45.148.34', password= "mingri1234", port=6379, db=3)
-    
     # 从Redis获取URL
     def redis_get(self):
-        return self.redis_conn.lpop(self.redis_key)
-    
-    # 将url给push到redis服务上
-    def redis_push(self, url):
-        self.redis_conn.lpush(self.redis_key, url)
+        return self._redis_conn.lpop(self.redis_key)
 
-    # 返回redis连接实例
-    @property
-    def redis_conn(self):
-        return self._get_redis_connection()
-    
+    # 批量将url push到redis服务上
+    def redis_push_batch(self, urls):
+        pipeline = self._redis_conn.pipeline()
+        for url in urls:
+            pipeline.lpush(self.redis_key, url)
+        pipeline.execute()  # 批量推送到 Redis
+
     # 构建要爬取的url
-    def buildUrls(self, base_url):
+    def build_urls(self, base_url):
         base_url = base_url.decode('utf-8')
         start_dates = [20240101, 20230101, 20220101, 20210101, 20200101]
-        endDates = [20241231, 20231231, 20221231, 20211231, 20201231]
-        weatherTrendsScenarios = ["TemperatureTrend,OverviewSummary,Summary,ClimateSummary", "PrecipitationTrend", "HumidityTrend", "WindTrend"]
-        for startDate, endDate in zip(start_dates, endDates):
-            for weatherSpecial in weatherTrendsScenarios:
+        end_dates = [20241231, 20231231, 20221231, 20211231, 20201231]
+        weather_trends_scenarios = [
+            "TemperatureTrend,OverviewSummary,Summary,ClimateSummary",
+            "PrecipitationTrend",
+            "HumidityTrend",
+            "WindTrend"
+        ]
+
+        urls = []
+        for start_date, end_date in zip(start_dates, end_dates):
+            for weather_special in weather_trends_scenarios:
                 url_parts = urllib.parse.urlparse(base_url)
                 query_params = urllib.parse.parse_qs(url_parts.query)
-                query_params['weatherTrendsScenarios'] = [weatherSpecial]
-                query_params['startDate'] = [startDate]
-                query_params['endDate'] = [endDate]
+                query_params['weatherTrendsScenarios'] = [weather_special]
+                query_params['startDate'] = [start_date]
+                query_params['endDate'] = [end_date]
                 updated_query = urllib.parse.urlencode(query_params, doseq=True)
-                
-                scheme = str(url_parts.scheme)
-                netloc = str(url_parts.netloc)
-                path = str(url_parts.path)
-                params = str(url_parts.params)
-                query = str(updated_query)
-                fragment = str(url_parts.fragment)
-                
-                url = urllib.parse.urlunparse((scheme, netloc, path, params, query, fragment))
-                print("当前爬取地址为：", url)
-                self.redis_push(url)
+
+                url = urllib.parse.urlunparse((
+                    url_parts.scheme,
+                    url_parts.netloc,
+                    url_parts.path,
+                    url_parts.params,
+                    updated_query,
+                    url_parts.fragment
+                ))
+                urls.append(url)
+
+        self.redis_push_batch(urls)  # 批量推送到 Redis
 
     # 解析返回的网络请求数据
     def parse(self, response, **kwargs):
-        json_response = json.loads(response.body)
-        
-        trend_chart_data = json_response['value'][0]['responses'][0]['trendChart']
+        try:
+            json_response = json.loads(response.body)
+            trend_chart_data = json_response['value'][0]['responses'][0]['trendChart']
+        except (KeyError, json.JSONDecodeError) as e:
+            self.logger.error(f"JSON解析错误或数据不完整: {e}")
+            return
 
         for date, trends in trend_chart_data.items():
-            temperature_item = None
-            precipitation_item = None
-            humidity_item = None
-            windVelocity_item = None
-            
-            for key, value in trends.get('trendDays', {}).items():
-                if key == '1':
-                    temperature_item = TemperatureItem()
-                    temperature_item['date'] = date
-                    temperature_item['height_temperature'] = value
-                elif key == '3' and temperature_item:
-                    temperature_item['height_history_temperature'] = value
-                elif key == '6' and temperature_item:
-                    temperature_item['low_temperature'] = value
-                elif key == '8' and temperature_item:
-                    temperature_item['low_history_temperature'] = value
-                elif key == '11':
-                    precipitation_item = PrecipitationItem()
-                    precipitation_item['date'] = date
-                    precipitation_item['precipitation'] = value
-                elif key == '41':
-                    windVelocity_item = WindVelocityItem()
-                    windVelocity_item['date'] = date
-                    windVelocity_item['wind_velocity'] = value
-                elif key =='43' and windVelocity_item:
-                    windVelocity_item['wind_velocity_history'] = value
-                elif key == '58':
-                    humidity_item = HumidityItem()
-                    humidity_item['date'] = date
-                    humidity_item['humidity'] = value
-                elif key == '60' and humidity_item:
-                    humidity_item['humidity_history'] = value
+            trend_days = trends.get('trendDays', {})
+            if not trend_days:
+                continue
 
-            # 根据具体item实例情况，合理的将数据发送到管道上    
-            if temperature_item:
-                # print(f"保存温度相关数据: {date}")
+            temperature_item, precipitation_item, humidity_item, wind_velocity_item = None, None, None, None
+
+            # 优先处理温度数据
+            if '1' in trend_days:
+                temperature_item = TemperatureItem(date=date, height_temperature=trend_days['1'])
+                if '3' in trend_days:
+                    temperature_item['height_history_temperature'] = trend_days['3']
+                if '6' in trend_days:
+                    temperature_item['low_temperature'] = trend_days['6']
+                if '8' in trend_days:
+                    temperature_item['low_history_temperature'] = trend_days['8']
                 yield temperature_item
-            if precipitation_item:
-                # print(f"保存降水量相关数据: {date}")
+
+            # 处理降水量数据
+            if '11' in trend_days:
+                precipitation_item = PrecipitationItem(date=date, precipitation=trend_days['11'])
                 yield precipitation_item
-            if humidity_item:
-                # print(f"保存湿度相关数据: {date}")
+
+            # 处理湿度数据
+            if '58' in trend_days:
+                humidity_item = HumidityItem(date=date, humidity=trend_days['58'])
+                if '60' in trend_days:
+                    humidity_item['humidity_history'] = trend_days['60']
                 yield humidity_item
-            if windVelocity_item:
-                # print(f"保存风速相关数据: {date}")
-                yield windVelocity_item
+
+            # 处理风速数据
+            if '41' in trend_days:
+                wind_velocity_item = WindVelocityItem(date=date, wind_velocity=trend_days['41'])
+                if '43' in trend_days:
+                    wind_velocity_item['wind_velocity_history'] = trend_days['43']
+                yield wind_velocity_item

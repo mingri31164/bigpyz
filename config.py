@@ -21,3 +21,5 @@ chatgpt_path = 'https://api.xiaoai.plus'
 
 # 数据文件
 csv_path = "./result/all_in_one_processed.csv"
+# 预测数据文件
+predict_path = "./result/all_in_one_predicted.csv"
