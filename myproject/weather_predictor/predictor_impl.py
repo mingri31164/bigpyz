@@ -121,15 +121,15 @@ class predictor_impl(weather_predictor): # 定义predicoctor_impl类，继承自
         print(f"预测结果已保存到: {output_path}")
 
 
-# # 使用示例
-if __name__ == "__main__":
-    predictor = predictor_impl("result\\all_in_one_processed.csv",20)
+# # # 使用示例
+# if __name__ == "__main__":
+#     predictor = predictor_impl("result\\all_in_one_processed.csv",20)
     
-    predictor.set_base_date("2024-11-05")
-    predictor.create_predictor_from_csv()
+#     predictor.set_base_date("2024-11-05")
+#     predictor.create_predictor_from_csv()
     
-    predicted_data = predictor.predict()
-    predictor.predicton_data_saver()
+#     predicted_data = predictor.predict()
+#     predictor.predicton_data_saver()
     
-    print("预测结果预览：")
-    print(predicted_data)
+#     print("预测结果预览：")
+#     print(predicted_data)
