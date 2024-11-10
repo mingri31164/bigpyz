@@ -1,5 +1,7 @@
 from datetime import datetime
 import os
+import time
+import webbrowser
 from weather_predictor.predictor_impl import predictor_impl
 from weather_predictor.csv_file_processor import processor
 
@@ -33,7 +35,8 @@ def get_root_path():
     try:
         bigpyz_index = path_parts.index('myproject')
         root_dir = os.sep.join(path_parts[:bigpyz_index + 1])
-        return root_dir  # 使用dirname获取上一级目录
+        return root_dir  # 使用dirname获取上一级目录 刘建伟测试放开
+        # return os.path.dirname(root_dir) 罗根湖测试放开
     except ValueError:
         return os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(current_file))))
 
@@ -69,7 +72,32 @@ def run_prediction(file_path):
         return False
     return True
 
-def start_all(start_scrapy):    # 终极方法, 一切的开始
+def run_webservice(url_):
+    # 初始化返回url
+    url_r = url_
+    
+    # 检查URL是否以'http'开头，如果不是则添加'http:'
+    if not url_[0:4] == 'http':
+        url_r = 'http://' + url_
+   
+    try:
+        # 等待1秒确保服务已启动
+        time.sleep(1)
+       
+        # 使用默认浏览器打开URL
+        webbrowser.open(url_r)
+        print(f"已在浏览器中打开可视化页面 {url_r}")
+       
+    except Exception as e:
+        print(f"打开浏览器页面出错: {str(e)}")
+        return False
+   
+    return True
+
+def start_all(start_scrapy,url_):    # 终极方法, 一切的开始
+    
+    open_webserver = False
+    
     try:
         # 获取项目根路径
         root_path = get_root_path()
@@ -134,6 +162,12 @@ def start_all(start_scrapy):    # 终极方法, 一切的开始
                     print("天气数据已保存到all_in_one_processed.csv, 但未进行预测")
             else:
                 print("处理后的数据不存在, 结束")
+                
+        # 可视化启动流程
+        open_webserver = get_user_input("是否启动可视化展示? (y/n): ", ['y', 'n']) == 'y' 
+        if open_webserver:
+            run_webservice(url_)
+                            
     except Exception as e:
         print(f"程序执行出错: {str(e)}")
 

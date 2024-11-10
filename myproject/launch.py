@@ -10,6 +10,9 @@ from weather_predictor.entry import start_all
 redis_url_cmd = 'redis-cli.exe -h 113.45.148.34 -a "mingri1234" -p 6379 -n 3 lpush weather_spider:start_url "https://assets.msn.cn/service/weather/weathertrends?apiKey=j5i4gDqHL6nGYwx5wi5kRhXjtf2c5qgFX9fzfk0TOo&cm=zh-cn&locale=zh-cn&lon=110.18000030517578&lat=25.235000610351562&units=C&user=m-2BE64755C83A64071FC6546FC9406530&ocid=msftweather&includeWeatherTrends=true&includeCalendar=false&fdhead=&weatherTrendsScenarios=WindTrend&days=30&insights=1&startDate=20200101&endDate=20201231""'
 launch_scrapy_cmd = 'scrapy crawl weather_spider'
 
+# remote server url
+remote_server_url = '127.0.0.1:8080'
+
 # 强行终止可能会导致数据缺失，因为爬取完之后，还有一段时间是scrapy整理数据，这个时候终止会出导致部分数据缺失
 def monitor_user_input(process):  
     """监控用户输入"""  
@@ -65,7 +68,7 @@ def main():
             # return  # 如果Redis命令出错，直接返回
 
         # 启动主程序
-        start_all(launch_scrapy)
+        start_all(launch_scrapy,remote_server_url)
         
     except subprocess.CalledProcessError as e:
         print(f"执行出错: {e}")
