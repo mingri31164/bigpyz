@@ -1,7 +1,7 @@
-from scrapy_redis.spiders import RedisSpider  
+import urllib.parse
+from scrapy_redis.spiders import RedisSpider
 import json
 import redis
-import urllib.parse
 from myproject.items import TemperatureItem,HumidityItem,PrecipitationItem,WindVelocityItem
 
 class WeatherSpider(RedisSpider):  
@@ -34,10 +34,10 @@ class WeatherSpider(RedisSpider):
     # 构建要爬取的url
     def buildUrls(self, base_url):
         base_url = base_url.decode('utf-8')
-        startDates = [20240101, 20230101, 20220101, 20210101, 20200101]
+        start_dates = [20240101, 20230101, 20220101, 20210101, 20200101]
         endDates = [20241231, 20231231, 20221231, 20211231, 20201231]
         weatherTrendsScenarios = ["TemperatureTrend,OverviewSummary,Summary,ClimateSummary", "PrecipitationTrend", "HumidityTrend", "WindTrend"]
-        for startDate, endDate in zip(startDates, endDates):
+        for startDate, endDate in zip(start_dates, endDates):
             for weatherSpecial in weatherTrendsScenarios:
                 url_parts = urllib.parse.urlparse(base_url)
                 query_params = urllib.parse.parse_qs(url_parts.query)
@@ -54,7 +54,7 @@ class WeatherSpider(RedisSpider):
                 fragment = str(url_parts.fragment)
                 
                 url = urllib.parse.urlunparse((scheme, netloc, path, params, query, fragment))
-                print(url)
+                print("当前爬取地址为：", url)
                 self.redis_push(url)
 
     # 解析返回的网络请求数据
@@ -99,14 +99,14 @@ class WeatherSpider(RedisSpider):
 
             # 根据具体item实例情况，合理的将数据发送到管道上    
             if temperature_item:
-                print(f"保存温度相关数据: {date}")
+                # print(f"保存温度相关数据: {date}")
                 yield temperature_item
             if precipitation_item:
-                print(f"保存降水量相关数据: {date}")
+                # print(f"保存降水量相关数据: {date}")
                 yield precipitation_item
             if humidity_item:
-                print(f"保存湿度相关数据: {date}")
+                # print(f"保存湿度相关数据: {date}")
                 yield humidity_item
             if windVelocity_item:
-                print(f"保存风速相关数据: {date}")
+                # print(f"保存风速相关数据: {date}")
                 yield windVelocity_item

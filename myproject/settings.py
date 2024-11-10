@@ -111,7 +111,7 @@ SCHEDULER_PERSIST = True
 DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
 
 # 设置爬虫结束时间
-CLOSESPIDER_TIMEOUT = 3
+CLOSESPIDER_TIMEOUT = 10
 
 # 使用 chrome
 # SELENIUM_DRIVER_NAME = 'chrome'  

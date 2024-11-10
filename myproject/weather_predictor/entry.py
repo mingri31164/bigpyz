@@ -2,8 +2,10 @@ from datetime import datetime
 import os
 import time
 import webbrowser
-from weather_predictor.predictor_impl import predictor_impl
-from weather_predictor.csv_file_processor import processor
+
+from myproject.weather_predictor.csv_file_processor import processor
+from myproject.weather_predictor.predictor_impl import predictor_impl
+
 
 def get_user_input(prompt, valid_responses=None):
     """

@@ -5,6 +5,7 @@ import threading
 import platform
 import os
 import redis
+
 from weather_predictor.entry import start_all
 
 # 连接到 Redis

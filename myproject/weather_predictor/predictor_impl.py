@@ -1,8 +1,12 @@
+import os
+
 import pandas as pd  # 导入pandas库
 import numpy as np  # 导入numpy库
 from statsmodels.tsa.statespace.sarimax import SARIMAX  # 导入SARIMAX模型
 from datetime import datetime, timedelta # 导入datetime和timedelta类
-from weather_predictor.predictor_interface import weather_predictor 
+
+from myproject.weather_predictor.predictor_interface import weather_predictor
+
 
 class predictor_impl(weather_predictor): # 定义predicoctor_impl类，继承自weather_predictor接口
     
@@ -116,7 +120,12 @@ class predictor_impl(weather_predictor): # 定义predicoctor_impl类，继承自
         if self.predicted_data is None:
             raise ValueError("没有预测数据，请先调用 predict()")
 
-        output_path = self.csv_path.replace('all_in_one_processed.csv', 'all_predicted.csv')
+
+        output_path = self.csv_path.replace('all_in_one_processed.csv', 'all_in_one_predicted.csv')
+        # 自动创建文件（如果不存在）
+        if not os.path.exists(output_path):
+            with open(output_path, 'w') as f:
+                f.write('')  # 写入空字符串，创建空文件
         self.predicted_data.to_csv(output_path, index=False)
         print(f"预测结果已保存到: {output_path}")
 
