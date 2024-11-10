@@ -1,3 +1,4 @@
+import pandas
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from flask_cors import CORS
 import pandas as pd
@@ -5,11 +6,13 @@ from openai import OpenAI
 import config
 
 app = Flask(__name__)
+
 #跨域启用
 CORS(app)
 
-# 读取预测数据
-predicted_df = pd.read_csv(config.predict_path)
+# 读取文件数据
+df = pd.read_csv(config.csv_path)
+df = pandas.DataFrame(df)
 
 # 初始化openai配置
 client = OpenAI(
@@ -48,65 +51,102 @@ def chat():
 
 
 # 查询温度数据
-@app.route("/tem", methods=["GET"])
-def get_temperature():
+@app.route("/tem/<int:year>", methods=["GET"])
+def get_temperature(year):
     # 读取文件
-    df = pd.read_csv(config.temperature_path)
     if df.empty:
-        return jsonify({"message": "温度数据为空"}), 400
+        response = {
+            "message": "温度数据为空",
+            "code": 400,
+            "data": None
+        }
+        return jsonify(response)
 
-    # 获取参数
-    # 获取日期列并转换格式
-    df['date'] = pd.to_datetime(df['date'])  # 转换为datetime对象
-    dates = df['date'].dt.strftime('%Y年%m月%d日').tolist()  # 转换为指定格式并放入列表
-    height_temperature = df['height_temperature'].tolist()
-    height_history_temperature = df['height_history_temperature'].tolist()
-    low_temperature = df['low_temperature'].tolist()
-    low_history_temperature = df['low_history_temperature'].tolist()
-    predicted_height_temperature = predicted_df['height_temperature'].tolist()
-    predicted_low_temperature = predicted_df['low_temperature'].tolist()
+    # 转换为datetime对象
+    df['date'] = pd.to_datetime(df['date'], errors='coerce')  # 转换为datetime，并处理无效日期
+    # 过滤出指定年份的数据
+    filtered_df = df[df['date'].dt.year == year]
 
-    # 将四个集合放入一个大集合中
+    # 如果没有找到数据
+    if filtered_df.empty:
+        response = {
+            "message": f"{year}年的温度数据为空",
+            "code": 404,
+            "data": None
+        }
+        return jsonify(response)
+
+    # 转换为指定格式并放入列表
+    dates = filtered_df['date'].dt.strftime('%Y年%m月%d日').tolist()
+
+    # 将数据转换为字符串形式
+    height_temperature = list(map(str, filtered_df['height_temperature'].tolist()))
+    height_history_temperature = list(map(str, filtered_df['height_history_temperature'].tolist()))
+    low_temperature = list(map(str, filtered_df['low_temperature'].tolist()))
+    low_history_temperature = list(map(str, filtered_df['low_history_temperature'].tolist()))
+
+    # 预测数据
+    predicted_height_temperature = list(map(str, filtered_df['height_temperature_predicted'].tolist()))
+    predicted_low_temperature = list(map(str, filtered_df['low_temperature_predicted'].tolist()))
+
+    # 将数据放入一个大集合中
     data = {
         'dates': dates,
-        'height_temperature': height_temperature,
-        'height_history_temperature': height_history_temperature,
-        'low_temperature': low_temperature,
-        'low_history_temperature': low_history_temperature,
-        'predicted_height_temperature': predicted_height_temperature,
-        'predicted_low_temperature': predicted_low_temperature
+        'hei_temps': height_temperature,
+        'hei_his_temps': height_history_temperature,
+        'low_temps': low_temperature,
+        'low_his_temps': low_history_temperature,
+        'pre_hei_temps': predicted_height_temperature,
+        'pre_low_temps': predicted_low_temperature
     }
+
     response = {
         "message": "温度数据获取成功",
         "code": 200,
         "data": data
     }
-    return response
+
+    return jsonify(response)
+
 
 
 # 查询湿度数据
-@app.route("/hum", methods=["GET"])
-def get_humidity():
+@app.route("/hum/<int:year>", methods=["GET"])
+def get_humidity(year):
     # 读取文件
-    df = pd.read_csv(config.humidity_path)
     if df.empty:
-        return jsonify({"message": "湿度数据为空"}), 400
+        response = {
+            "message": "湿度数据为空",
+            "code": 400,
+            "data": None
+        }
+        return response
+    # 转换为datetime对象
+    df['date'] = pd.to_datetime(df['date'], errors='coerce')  # 转换为datetime，并处理无效日期
+    # 过滤出指定年份的数据
+    filtered_df = df[df['date'].dt.year == year]
 
-    # 获取参数
-    # 获取日期列并转换格式
-    df['date'] = pd.to_datetime(df['date'])  # 转换为datetime对象
-    dates = df['date'].dt.strftime('%Y年%m月%d日').tolist()  # 转换为指定格式并放入列表
-    humidity = df['humidity'].tolist()
-    humidity_history = df['humidity_history'].tolist()
-    predicted_humidity = predicted_df['humidity'].tolist()
+    # 如果没有找到数据
+    if filtered_df.empty:
+        response = {
+            "message": f"{year}年的湿度数据为空",
+            "code": 400,
+            "data": None
+        }
+        return jsonify(response)
+
+    dates = filtered_df['date'].dt.strftime('%Y年%m月%d日').tolist()  # 转换为指定格式并放入列表
+    humidity = list(map(str, filtered_df['humidity'].tolist()))
+    humidity_history = list(map(str, filtered_df['humidity_history'].tolist()))
+
+    predicted_humidity = list(map(str, filtered_df['humidity_predicted'].tolist()))
 
 
-    # 将四个集合放入一个大集合中
     data = {
         'dates': dates,
-        'humidity': humidity,
-        'humidity_history': humidity_history,
-        'predicted_humidity': predicted_humidity,
+        'hums': humidity,
+        'hums_his': humidity_history,
+        'pre_hums': predicted_humidity,
     }
     response = {
         "message": "湿度数据获取成功",
@@ -118,29 +158,41 @@ def get_humidity():
 
 
 
-# 查询湿度数据
-@app.route("/wind", methods=["GET"])
-def get_wind():
+# 查询风速数据
+@app.route("/wind/<int:year>", methods=["GET"])
+def get_wind(year):
     # 读取文件
-    df = pd.read_csv(config.humidity_path)
     if df.empty:
-        return jsonify({"message": "风速数据为空"}), 400
+        response = {
+            "message": "风速数据为空",
+            "code": 400,
+            "data": None
+        }
+        return response
 
-    # 获取参数
-    # 获取日期列并转换格式
-    df['date'] = pd.to_datetime(df['date'])  # 转换为datetime对象
-    dates = df['date'].dt.strftime('%Y年%m月%d日').tolist()  # 转换为指定格式并放入列表
-    wind_velocity = df['wind_velocity'].tolist()
-    wind_velocity_history = df['wind_velocity_history'].tolist()
-    predicted_wind_velocity = predicted_df['wind_velocity'].tolist()
+    df['date'] = pd.to_datetime(df['date'], errors='coerce')
+    # 过滤出指定年份的数据
+    filtered_df = df[df['date'].dt.year == year]
+
+    # 如果没有找到数据
+    if filtered_df.empty:
+        response = {
+            "message": f"{year}年的风速数据为空",
+            "code": 400,
+            "data": None
+        }
+        return jsonify(response)
+
+    dates = filtered_df['date'].dt.strftime('%Y年%m月%d日').tolist()  # 转换为指定格式并放入列表
+
+    wind_velocity = list(map(str, filtered_df['wind_velocity'].tolist()))
+    wind_velocity_history = list(map(str, filtered_df['wind_velocity_history'].tolist()))
 
 
-    # 将四个集合放入一个大集合中
     data = {
         'dates': dates,
-        'humidity': wind_velocity,
-        'humidity_history': wind_velocity_history,
-        'predicted_humidity': predicted_wind_velocity,
+        'winds': wind_velocity,
+        'winds_his': wind_velocity_history,
     }
     response = {
         "message": "风速数据获取成功",
@@ -150,14 +202,51 @@ def get_wind():
     return response
 
 
-@app.errorhandler(404)
-def page_not_found(error):
-    return render_template("404.html"), 404
+# 查询降水量数据
+@app.route("/preci/<int:year>", methods=["GET"])
+def get_preci(year):
+    # 读取文件
+    if df.empty:
+        response = {
+            "message": "降水数据为空",
+            "code": 400,
+            "data": None
+        }
+        return response
+
+    # 获取参数
+    # 获取日期列并转换格式
+    df['date'] = pd.to_datetime(df['date'], errors='coerce')
+    # 过滤出指定年份的数据
+    filtered_df = df[df['date'].dt.year == year]
+
+    # 如果没有找到数据
+    if filtered_df.empty:
+        response = {
+            "message": f"{year}年的降水量数据为空",
+            "code": 400,
+            "data": None
+        }
+        return jsonify(response)
+
+    dates = filtered_df['date'].dt.strftime('%Y年%m月%d日').tolist()  # 转换为指定格式并放入列表
+
+    preci = list(map(str, filtered_df['precipitation'].tolist()))
+
+    pre_preci = list(map(str, filtered_df['precipitation_predicted'].tolist()))
 
 
-@app.errorhandler(500)
-def system_error(error):
-    return render_template("500.html"), 500
+    data = {
+        'dates': dates,
+        'preci': preci
+    }
+    response = {
+        "message": "降水量数据获取成功",
+        "code": 200,
+        "data": data
+    }
+    return response
+
 
 
 if __name__ == "__main__":

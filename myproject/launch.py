@@ -4,10 +4,23 @@ import time
 import threading
 import platform
 import os
-
+import redis
 from weather_predictor.entry import start_all
 
-redis_url_cmd = 'redis-cli.exe -h 113.45.148.34 -a "mingri1234" -p 6379 -n 3 lpush weather_spider:start_url "https://assets.msn.cn/service/weather/weathertrends?apiKey=j5i4gDqHL6nGYwx5wi5kRhXjtf2c5qgFX9fzfk0TOo&cm=zh-cn&locale=zh-cn&lon=110.18000030517578&lat=25.235000610351562&units=C&user=m-2BE64755C83A64071FC6546FC9406530&ocid=msftweather&includeWeatherTrends=true&includeCalendar=false&fdhead=&weatherTrendsScenarios=WindTrend&days=30&insights=1&startDate=20200101&endDate=20201231""'
+# 连接到 Redis
+r = redis.Redis(
+    host='113.45.148.34',
+    port=6379,
+    password='mingri1234',
+    db=3
+)
+
+# 要推送的 URL
+url = ("https://assets.msn.cn/service/weather/weathertrends?apiKey=j5i4gDqHL6nGYwx5wi5kRhXjtf2c5qgFX9fzfk0TOo&cm=zh-cn"
+       "&locale=zh-cn&lon=110.18000030517578&lat=25.235000610351562&units=C&user=m-2BE64755C83A64071FC6546FC9406530"
+       "&ocid=msftweather&includeWeatherTrends=true&includeCalendar=false&fdhead=&weatherTrendsScenarios=WindTrend"
+       "&days=30&insights=1&startDate=20200101&endDate=20201231")
+
 launch_scrapy_cmd = 'scrapy crawl weather_spider'
 
 # remote server url
@@ -58,14 +71,14 @@ def main():
     try:
         # 执行Redis命令
         print("执行Redis命令...")
-        result = subprocess.run(redis_url_cmd, shell=True, capture_output=True, text=True)
-        print("输出:", result.stdout)
-        
-        if result.stderr is None or result.stderr.strip() == "":
-            print("Redis命令执行成功")
-        else:
-            print("错误:", result.stderr)
-            # return  # 如果Redis命令出错，直接返回
+        # 检查键是否存在并获取当前值
+        len = r.llen('weather_spider:start_url')
+
+        # 如果键不存在或当前值为空，则执行 lpush
+        if len == 0:
+            r.lpush('weather_spider:start_url', url)
+        elif len >= 1:
+            print("url已存在，跳过添加操作")
 
         # 启动主程序
         start_all(launch_scrapy,remote_server_url)
