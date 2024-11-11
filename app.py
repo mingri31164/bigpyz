@@ -14,7 +14,10 @@ from myproject.weather_predictor.csv_file_processor import processor
 from myproject.weather_predictor.entry import get_root_path
 from myproject.weather_predictor.predictor_impl import predictor_impl
 
-app = Flask(__name__)
+app = Flask(__name__,
+            static_folder='./tianqi/dist',  #设置静态文件夹目录
+            template_folder = "./tianqi/dist",
+            static_url_path="")
 
 #跨域启用
 CORS(app)
@@ -33,6 +36,19 @@ client = OpenAI(
     # sk-xxx替换为自己的key
     api_key = config.api_key
 )
+
+
+# 统一请求拦截
+@app.before_request
+def before_request():
+    return None
+
+
+# 首页
+@app.route("/")
+def index():
+    return render_template('index.html')
+
 
 
 # 启动Scrapy爬虫
@@ -137,20 +153,6 @@ def start_prediction():
             "message": str(e),
         }
         return jsonify(response)
-
-
-
-
-# 统一请求拦截
-@app.before_request
-def before_request():
-    return None
-
-
-# 首页
-@app.route("/")
-def index():
-    return render_template("index.html")
 
 
 
