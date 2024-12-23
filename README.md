@@ -2,3 +2,5 @@
 
 ## 项目运行
 python3 app.py
+
+![alt text](doc/index.png)
